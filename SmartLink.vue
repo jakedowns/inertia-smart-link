@@ -8,12 +8,36 @@
 </template>
 
 <script>
-/* NOTE: if you're using SSR, don't use v-html on this component. instead, put a <span> in the <slot> and add the v-html to that. Otherwise, hydration will bail when it tries to appendChild onto a comment */
+/* 
+
+NOTE: if you're using SSR, don't use v-html on this component. 
+instead, put a <span> in the <slot> and add the v-html to that. 
+Otherwise, hydration will bail when it tries to appendChild into a comment /shrug
+
+See methods.checkLinkIsInertia method to define which href's ARE inertia-enabled
+
+Usage:
+
+<smart-link :href="/my-inertia-route"> => <inertia-link :href="/my-inertia-route" />
+
+<smart-link :href="/my-non-inertia-route"> => <a :href="/my-non-inertia-route" />
+
+<smart-link :hide_empty="true" :href="null"> => <fragment />
+
+<smart-link :fallback_tag="div" :href="null">This Texts is Sometimes Linked</smart-link> => <div>This Texts is Sometimes Linked</div>
+
+<smart-link :href="/some-page">
+Link Text Here
+</smart-link>
+
+*/
 
 import {Link} from '@inertiajs/inertia-vue'
 
-const BASE_URL = null; // 'https://mysite.com'; // OPTIONAL define the base url for url building. otherwise, it'll use window.location.hostname
-const COMMON_INERTIA_ONLY = null; // OPTIONAL define common inertia-link :only="" param for all inertia-links here...
+// 'https://mysite.com'; // OPTIONAL define the base url for url building. otherwise, it'll use window.location.hostname
+const BASE_URL = null; 
+// OPTIONAL define common inertia-link :only="" param for all inertia-links here...
+const COMMON_INERTIA_ONLY = null; 
 
 export default {
   components: {'inertia-link':Link},
