@@ -10,9 +10,6 @@
 <script>
 /* NOTE: if you're using SSR, don't use v-html on this component. instead, put a <span> in the <slot> and add the v-html to that. Otherwise, hydration will bail when it tries to appendChild onto a comment */
 
-/* define a class that checks if the requested href is an Inertia-enabled page, or not, so the component knows when to render a <a> vs a <inertia-link> */
-import { checkUrlIsInertia } from 'checkUrlIsInertia'
-
 import {Link} from '@inertiajs/inertia-vue'
 
 const BASE_URL = null; // 'https://mysite.com'; // OPTIONAL define the base url for url building. otherwise, it'll use window.location.hostname
@@ -21,9 +18,15 @@ const COMMON_INERTIA_ONLY = null; // OPTIONAL define common inertia-link :only="
 export default {
   components: {'inertia-link':Link},
   props: {
+    // defaults to _self, can be _blank, etc
     target: {required: false, type: String, default: null },
+
     href: {required: false, type: String, default: null},
+
+    // what tag to use if href is falsey
     fallback_tag: {default: 'span'},
+
+    // whether to return an empty fragement if falsey href is provided
     hide_empty: {type: Boolean, default: false}
   },
   data() {
@@ -58,6 +61,17 @@ export default {
     }
   },
   methods:{
+    checkUrlIsInertia(href){
+      if(!href || !href.length){
+        return false
+      }
+      // define what routes are "inertia-enabled"
+      if(href.indexOf('/my-inertia-route')>-1){
+        return true;
+      }
+      return false;
+    },
+    // returns 'a'(anchor), 'inertia-link', 'span', 'fragment'
     analyzeHref(){
       let href = this?.href ?? '';
       // mailto:// use <a>
@@ -130,7 +144,7 @@ export default {
                         final_target?.indexOf('blank') > -1;
 
       // we are phasing-in inertial on a per-route basis, so we need to limit them here for now
-      const is_inertia_route = checkUrlIsInertia(href)
+      const is_inertia_route = this.checkUrlIsInertia(href)
 
       if (
         has_listener
@@ -163,24 +177,9 @@ export default {
         }
       }
 
-      // d.json({
-      //   // t: this,
-      //   p: this.props,
-      //   href,
-      //   has_listener,
-      //   targets_new,
-      //   is_mailto,
-      //   contains_hash,
-      //   is_absolute,
-      //   is_external,
-      //   is_cross_house,
-      //   is_same_site_wrong_env,
-      //   current_component,
-      //   final_target,
-      //   text: this.$slots?.default?.[0]?.elm?.innerHTML
-      // })
-
       // expose results of analysis for debugging via vue devtools / js-console
+      // could also console log them, but it becomes hard to read,
+      // easier to target a specific link, then see its results
       this.final_href = href;
       this.has_listener = has_listener;
       this.targets_new = targets_new;
